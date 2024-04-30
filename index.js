@@ -2,18 +2,16 @@ import OpenAI from 'openai'
 
 const openai = new OpenAI()
 
-async function hello() {
+async function hello(job, text) {
   const stream = await openai.chat.completions.create({
     messages: [
       {
         role: 'system',
-        content:
-          'You are an amazing JavaScript developer. When I send a codeblock of JavaScript, you will return a more reusable and better written verion of this code',
+        content: 'You are a hiring manager and I need to interview canidates',
       },
       {
         role: 'user',
-        content:
-          'function add(x, y) { var z = x + y console.log(z) } add(3, 4)',
+        content: `Write three interview questions for an ${job} who ${text}`,
       },
     ],
     model: 'gpt-3.5-turbo',
@@ -25,4 +23,7 @@ async function hello() {
   }
 }
 
-hello()
+hello(
+  'Automation Engineer',
+  'has less than a year of automation experince. He was a full stack devlepor before that for 3 years'
+)
