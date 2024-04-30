@@ -1,27 +1,30 @@
 import OpenAI from 'openai'
-import readline from 'readline'
 
 const openai = new OpenAI()
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-})
-
-rl.question('What do you want to ask the robots', async (question) => {
-  let res = await openai.chat.completions.create({
+async function imageDescription() {
+  let response = await openai.chat.completions.create({
     messages: [
       {
-        role: 'system',
-        content: 'You are a friendly robot!',
-      },
-      {
         role: 'user',
-        content: question,
+        content: [
+          {
+            type: 'text',
+            text: 'What is this a picture of?',
+          },
+          {
+            type: 'image_url',
+            image_url: {
+              url: 'https://images.squarespace-cdn.com/content/v1/57902faa59cc68a958c59c03/067c935d-c1b3-47a0-8b71-5730940bc0c9/santa-lexie.jpg',
+            },
+          },
+        ],
       },
     ],
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4-vision-preview',
+    max_tokens: 100,
   })
-  console.log(res.choices[0].message)
-  rl.close()
-})
+  console.log(response.choices[0].message)
+}
+
+imageDescription()
