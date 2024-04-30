@@ -1,29 +1,27 @@
 import OpenAI from 'openai'
+import readline from 'readline'
 
 const openai = new OpenAI()
 
-async function hello(job, text) {
-  const stream = await openai.chat.completions.create({
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+})
+
+rl.question('What do you want to ask the robots', async (question) => {
+  let res = await openai.chat.completions.create({
     messages: [
       {
         role: 'system',
-        content: 'You are a hiring manager and I need to interview canidates',
+        content: 'You are a friendly robot!',
       },
       {
         role: 'user',
-        content: `Write three interview questions for an ${job} who ${text}`,
+        content: question,
       },
     ],
     model: 'gpt-3.5-turbo',
-    stream: true,
-    max_tokens: 64,
   })
-  for await (const chunk of stream) {
-    process.stdout.write(chunk.choices[0].delta.content || '')
-  }
-}
-
-hello(
-  'Automation Engineer',
-  'has less than a year of automation experince. He was a full stack devlepor before that for 3 years'
-)
+  console.log(res.choices[0].message)
+  rl.close()
+})
