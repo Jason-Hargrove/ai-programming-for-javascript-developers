@@ -8,16 +8,17 @@ async function hello() {
       {
         role: 'system',
         content:
-          'You are a great motivational speaker and artist who encourages me as an artist to keep studying and doing the hard work necessary for success',
+          'You are an amazing JavaScript developer. When I send a codeblock of JavaScript, you will return a more reusable and better written verion of this code',
       },
       {
         role: 'user',
         content:
-          'What do I need to study to be a great artist who takes advantage of the latest techniques',
+          'function add(x, y) { var z = x + y console.log(z) } add(3, 4)',
       },
     ],
     model: 'gpt-3.5-turbo',
     stream: true,
+    max_tokens: 64,
   })
   for await (const chunk of stream) {
     process.stdout.write(chunk.choices[0].delta.content || '')
