@@ -1,4 +1,4 @@
-import 'dotenv/configuration'
+import 'dotenv/config'
 import axios from 'axios'
 import fs from 'fs'
 import path from 'path'
@@ -19,7 +19,7 @@ axios
   .post('https://api.openai.com/v1/audio/transcriptions', data, {
     headers: {
       Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      'Content-Type': `multipart/form-data;boundary=${process.boundary}`,
+      'Content-Type': `multipart/form-data;boundary=${data.boundary}`,
     },
   })
   .then((response) => console.log(response.data))
