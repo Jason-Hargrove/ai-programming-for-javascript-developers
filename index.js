@@ -1,10 +1,20 @@
 import { ChatOpenAI } from '@langchain/openai'
+import { ChatPromptTemplate } from '@langchain/core/prompts'
+import { StringOutputParser } from '@langchain/core/output_parsers'
 import 'dotenv/config'
 
+const prompt = ChatPromptTemplate.fromMessages([
+  'human',
+  'Write a haiku about {topic}',
+])
+
 const chatModel = new ChatOpenAI()
+const parser = new StringOutputParser()
 
-const reactors = await chatModel.invoke(
-  'How many nuclear reactors are in the United States?'
-)
+const chain = prompt.pipe(chatModel).pipe(parser)
 
-console.log(reactors)
+const response = await chain.invoke({
+  topic: 'nuclear reactors',
+})
+
+console.log(response)
