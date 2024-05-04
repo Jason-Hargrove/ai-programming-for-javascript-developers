@@ -1,41 +1,47 @@
+import OpenAI from 'openai'
 import 'dotenv/config'
-import axios from 'axios'
+import readline from 'readline'
 
-const generateImage = async (prompt, size = '1024x1024') => {
-  const baseUrl = 'https://api.openai.com/v1/images/generations'
-  const model = 'dall-e-3'
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+})
 
-  try {
-    const response = await axios.post(
-      baseUrl,
-      {
-        model: model,
-        prompt: prompt,
-        size: size,
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+})
+
+rl.question(
+  'Share your opening paragraph with the art historian \n',
+  async (question) => {
+    const run = await openai.beta.threads.createAndRun({
+      assistant_id: 'asst_ij6DCikvivo86bYjw5TJZWbj',
+      thread: {
+        messages: [
+          {
+            role: 'user',
+            content: question,
+          },
+        ],
       },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
+    })
+    async function checkStatus() {
+      let status = await openai.beta.threads.runs.retrieve(
+        run.thread_id,
+        run.id
+      )
+      if (status.status === 'completed') {
+        let messages = await openai.beta.threads.messages.list(run.thread_id)
+        messages.data.forEach((msg) => {
+          const content = msg.content[0].text.value
+          console.log(content)
+        })
+      } else {
+        console.log('Run is not completed yet.')
       }
-    )
-
-    return response.data // Return the response data directly.
-  } catch (error) {
-    if (error.response) {
-      console.error('Failed with status:', error.response.status)
-      console.error('Error response data:', error.response.data)
-    } else {
-      console.error('Error message:', error.message)
     }
-    return null
+    setTimeout(() => {
+      checkStatus(run.thread_id, run.id)
+    }, 20000)
   }
-}
-
-const prompt =
-  "A thrilling scene of people, running away in terror from a menacing, frothing character of a nuclear reactor that is a cartoon character. The nuclear reactor is depicted as radioactive and rabid, glowing ominously with a hue of green and launching tendrils of corrosive energy in an attempt to reach the fleeing crowd. The landscape surrounding them is barren and vast, depicting the intense urgency and desperation. It's a surreal and chilling blend of a sunny beach day slapped against a dystopian sci-fi horror but cartoonish at the same time and playful"
-
-generateImage(prompt)
-  .then((data) => console.log(data))
-  .catch((error) => console.error('Failed to generate image:', error))
+)
